@@ -3,19 +3,160 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F7F6F0;
+  --foreground: #222E26;
+  --card: #FFFFFF;
+  --card-foreground: #222E26;
+  --primary: #4A6B53;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EDEBE0;
+  --secondary-foreground: #222E26;
+  --muted: #EDEBE0;
+  --muted-foreground: #5C6B60;
+  --accent: #E6ECE8;
+  --accent-foreground: #2D4836;
+  --border: #DFDCD0;
+  --input: #DFDCD0;
+  --ring: #4A6B53;
+  --shadow-sm: 0 1px 2px 0 rgba(34, 46, 38, 0.05);
+  --shadow: 0 4px 10px -1px rgba(34, 46, 38, 0.04), 0 2px 4px -1px rgba(34, 46, 38, 0.02);
+  --shadow-lg: 0 12px 20px -3px rgba(34, 46, 38, 0.06), 0 4px 8px -2px rgba(34, 46, 38, 0.03);
+  --glow-color: rgba(74, 107, 83, 0.15);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #151B17;
+  --foreground: #EBECE8;
+  --card: #1D2620;
+  --card-foreground: #EBECE8;
+  --primary: #6E9C7C;
+  --primary-foreground: #151B17;
+  --secondary: #26322A;
+  --secondary-foreground: #EBECE8;
+  --muted: #26322A;
+  --muted-foreground: #899D90;
+  --accent: #2B3B31;
+  --accent-foreground: #9FC4AC;
+  --border: #2E3D33;
+  --input: #2E3D33;
+  --ring: #6E9C7C;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 15px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --glow-color: rgba(110, 156, 124, 0.25);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-plus-jakarta), sans-serif;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(223, 220, 208, 0.6);
+}
+
+.dark .glass-panel {
+  background: rgba(29, 38, 32, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(46, 61, 51, 0.6);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(74, 107, 83, 0.15);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(110, 156, 124, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 107, 83, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(110, 156, 124, 0.25);
+}
+
+/* Grid & Glow Patterns */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(74, 107, 83, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(74, 107, 83, 0.03) 1px, transparent 1px);
+}
+
+.dark .bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(110, 156, 124, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(110, 156, 124, 0.02) 1px, transparent 1px);
+}
+
+.glow-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glow-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, var(--primary), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+.glow-card:hover {
+  box-shadow: 0 0 20px 2px var(--glow-color);
+  transform: translateY(-2px);
+}
+
+/* Page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Hide default input outline but maintain accessibility */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--glow-color);
 }
