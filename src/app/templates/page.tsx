@@ -86,6 +86,9 @@ const STANDARDIZED_TEMPLATES = [
   }
 ];
 
-export default function TemplatesPage() {
-  return <TemplatesGallery templates={STANDARDIZED_TEMPLATES} />;
+import { checkIsAdmin } from '@/lib/auth';
+
+export default async function TemplatesPage() {
+  const isAdmin = await checkIsAdmin();
+  return <TemplatesGallery templates={STANDARDIZED_TEMPLATES} isAdmin={isAdmin} />;
 }

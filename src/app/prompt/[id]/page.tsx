@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db/db';
 import PromptDetailWorkspace from '@/components/PromptDetailWorkspace';
+import { checkIsAdmin } from '@/lib/auth';
 
 export const revalidate = 0; // Force fresh data load on access
 
@@ -13,10 +14,11 @@ export default async function PromptDetailPage({ params }: PromptPageProps) {
   const { id } = await params;
 
   // Fetch prompt from Google Sheets / JSON DB
-  const [prompt, versions, categories] = await Promise.all([
+  const [prompt, versions, categories, isAdmin] = await Promise.all([
     db.getPromptById(id),
     db.getVersions(id),
     db.getCategories(),
+    checkIsAdmin(),
   ]);
 
   if (!prompt) {
@@ -28,6 +30,7 @@ export default async function PromptDetailPage({ params }: PromptPageProps) {
       prompt={prompt} 
       versions={versions} 
       categories={categories} 
+      isAdmin={isAdmin}
     />
   );
 }

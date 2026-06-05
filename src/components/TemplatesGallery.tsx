@@ -21,9 +21,10 @@ interface Template {
 
 interface TemplatesGalleryProps {
   templates: Template[];
+  isAdmin: boolean;
 }
 
-export default function TemplatesGallery({ templates }: TemplatesGalleryProps) {
+export default function TemplatesGallery({ templates, isAdmin }: TemplatesGalleryProps) {
   const queryClient = useQueryClient();
   const addToast = useStore((state) => state.addToast);
   
@@ -130,9 +131,10 @@ export default function TemplatesGallery({ templates }: TemplatesGalleryProps) {
                   <Eye className="w-3.5 h-3.5" /> Preview
                 </button>
                 <button
-                  disabled={duplicatingTitle === template.title}
+                  disabled={!isAdmin || duplicatingTitle === template.title}
                   onClick={(e) => handleDuplicate(template, e)}
                   className="px-3 py-1.5 bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] rounded-xl font-bold text-[10px] shadow-sm flex items-center gap-1 active:scale-98 transition-all disabled:opacity-50"
+                  title={!isAdmin ? 'Login as Admin to duplicate templates' : 'Duplicate to Library'}
                 >
                   {duplicatingTitle === template.title ? 'Duplicating...' : 'Duplicate'}
                 </button>
@@ -200,9 +202,10 @@ export default function TemplatesGallery({ templates }: TemplatesGalleryProps) {
                   Close Preview
                 </button>
                 <button
-                  disabled={duplicatingTitle === previewTemplate.title}
+                  disabled={!isAdmin || duplicatingTitle === previewTemplate.title}
                   onClick={(e) => handleDuplicate(previewTemplate, e)}
                   className="px-5 py-2 bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] rounded-xl font-bold flex items-center gap-1.5 shadow-sm active:scale-98 transition-all disabled:opacity-50"
+                  title={!isAdmin ? 'Login as Admin to duplicate templates' : 'Duplicate to Library'}
                 >
                   <Copy className="w-3.5 h-3.5" /> Duplicate to Library
                 </button>

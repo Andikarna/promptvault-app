@@ -1,15 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Moon, Sun, DatabaseBackup, Info, Plus, Menu } from 'lucide-react';
+import { Moon, Sun, DatabaseBackup, Info, Menu, Eye, Search } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { usePathname } from 'next/navigation';
 
 interface HeaderActionsProps {
   dbMode: 'Sheets' | 'Local';
+  isAdmin: boolean;
 }
 
-export default function HeaderActions({ dbMode }: HeaderActionsProps) {
+export default function HeaderActions({ dbMode, isAdmin }: HeaderActionsProps) {
   const theme = useStore((state) => state.theme);
   const toggleTheme = useStore((state) => state.toggleTheme);
   const toggleCommandPalette = useStore((state) => state.toggleCommandPalette);
@@ -63,13 +64,21 @@ export default function HeaderActions({ dbMode }: HeaderActionsProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Quick Actions */}
+          {/* Read-Only Badge */}
+          {!isAdmin && (
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-[#EDEBE0]/30 dark:bg-[#1D2620]/30 text-[#5C6B60] dark:text-[#899D90] text-[10px] font-semibold uppercase tracking-wider">
+              <Eye className="w-3 h-3 text-[#4A6B53] dark:text-emerald-500 mr-1" />
+              Read-Only
+            </div>
+          )}
+
+          {/* Search & Commands Button */}
           <button 
             onClick={toggleCommandPalette}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] shadow-sm shadow-[#4A6B53]/10 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#EDEBE0] hover:bg-[#DFDCD0] text-[#222E26] dark:bg-[#26322A] dark:hover:bg-[#2B3B31] dark:text-[#EBECE8] border border-[#DFDCD0] dark:border-[#2E3D33] active:scale-95 transition-all"
           >
-            <Plus className="w-3.5 h-3.5" />
-            Quick Actions
+            <Search className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" />
+            Search & Commands
           </button>
 
           {/* Theme Toggle */}

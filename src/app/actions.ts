@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/lib/db/db';
 import { Prompt, Category, Collection, PromptVersion } from '@/lib/types';
+import { checkIsAdmin } from '@/lib/auth';
 
 // Helper to generate a random ID
 const genId = (prefix: string) => `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
@@ -36,6 +37,9 @@ const collectionSchema = z.object({
 // Prompts Server Actions
 export async function createPromptAction(formData: z.infer<typeof promptSchema>) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const validated = promptSchema.parse(formData);
     const id = genId('prompt');
     const now = new Date().toISOString();
@@ -82,6 +86,9 @@ export async function createPromptAction(formData: z.infer<typeof promptSchema>)
 
 export async function updatePromptAction(id: string, formData: Partial<z.infer<typeof promptSchema>>) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const existing = await db.getPromptById(id);
     if (!existing) throw new Error('Prompt not found');
 
@@ -141,6 +148,9 @@ export async function updatePromptAction(id: string, formData: Partial<z.infer<t
 
 export async function deletePromptAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const existing = await db.getPromptById(id);
     if (!existing) throw new Error('Prompt not found');
 
@@ -165,6 +175,9 @@ export async function deletePromptAction(id: string) {
 
 export async function toggleFavoriteAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const existing = await db.getPromptById(id);
     if (!existing) throw new Error('Prompt not found');
 
@@ -189,6 +202,9 @@ export async function toggleFavoriteAction(id: string) {
 
 export async function archivePromptAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const existing = await db.getPromptById(id);
     if (!existing) throw new Error('Prompt not found');
 
@@ -213,6 +229,9 @@ export async function archivePromptAction(id: string) {
 
 export async function duplicatePromptAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const existing = await db.getPromptById(id);
     if (!existing) throw new Error('Prompt not found');
 
@@ -262,6 +281,9 @@ export async function duplicatePromptAction(id: string) {
 // Categories Actions
 export async function createCategoryAction(formData: z.infer<typeof categorySchema>) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const validated = categorySchema.parse(formData);
     const id = genId('cat');
     const newCategory: Category = {
@@ -281,6 +303,9 @@ export async function createCategoryAction(formData: z.infer<typeof categorySche
 
 export async function deleteCategoryAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const success = await db.deleteCategory(id);
     revalidatePath('/');
     revalidatePath('/library');
@@ -294,6 +319,9 @@ export async function deleteCategoryAction(id: string) {
 // Collections Actions
 export async function createCollectionAction(formData: z.infer<typeof collectionSchema>) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const validated = collectionSchema.parse(formData);
     const id = genId('col');
     const now = new Date().toISOString();
@@ -317,6 +345,9 @@ export async function createCollectionAction(formData: z.infer<typeof collection
 
 export async function updateCollectionAction(id: string, formData: Partial<z.infer<typeof collectionSchema>>) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const updated = await db.updateCollection(id, formData);
     revalidatePath('/');
     revalidatePath('/library');
@@ -329,6 +360,9 @@ export async function updateCollectionAction(id: string, formData: Partial<z.inf
 
 export async function deleteCollectionAction(id: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const success = await db.deleteCollection(id);
     revalidatePath('/');
     revalidatePath('/library');
@@ -341,6 +375,9 @@ export async function deleteCollectionAction(id: string) {
 
 export async function rollbackPromptVersionAction(promptId: string, versionId: string) {
   try {
+    if (!(await checkIsAdmin())) {
+      return { success: false, error: 'Unauthorized: Read-only mode active.' };
+    }
     const prompt = await db.getPromptById(promptId);
     if (!prompt) throw new Error('Prompt not found');
 

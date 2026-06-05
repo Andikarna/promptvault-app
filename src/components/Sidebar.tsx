@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Database, Folder, Star, Bookmark, BarChart3, Settings,
-  Command, Cloud, DatabaseBackup, ChevronLeft, ChevronRight, X
+  Command, Cloud, DatabaseBackup, ChevronLeft, ChevronRight, X, LogIn, LogOut, Lock, ShieldAlert
 } from 'lucide-react';
 import { useStore } from '@/lib/store';
+import { loginAction, logoutAction, isPasswordConfiguredAction } from '@/app/authActions';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SidebarProps {
   dbMode: 'Sheets' | 'Local';
+  isAdmin: boolean;
 }
 
-export default function Sidebar({ dbMode }: SidebarProps) {
+export default function Sidebar({ dbMode, isAdmin }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const {
@@ -24,6 +27,46 @@ export default function Sidebar({ dbMode }: SidebarProps) {
     setOnlyFavorites,
     toggleCommandPalette
   } = useStore();
+
+  const [isPending, startTransition] = useTransition();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const addToast = useStore((state) => state.addToast);
+  const [isPasswordConfigured, setIsPasswordConfigured] = useState(true);
+
+  useEffect(() => {
+    isPasswordConfiguredAction().then(setIsPasswordConfigured);
+  }, []);
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      const res = await logoutAction();
+      if (res.success) {
+        addToast('Admin logged out. Read-only mode active.', 'info');
+        router.refresh();
+      } else {
+        addToast(res.error || 'Failed to logout.', 'error');
+      }
+    });
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    
+    startTransition(async () => {
+      const res = await loginAction(password);
+      if (res.success) {
+        addToast('Successfully authenticated as Admin!', 'success');
+        setIsLoginModalOpen(false);
+        setPassword('');
+        router.refresh();
+      } else {
+        setLoginError(res.error || 'Incorrect password.');
+      }
+    });
+  };
 
   // Close mobile sidebar on navigation
   useEffect(() => {
@@ -172,6 +215,27 @@ export default function Sidebar({ dbMode }: SidebarProps) {
           <Settings className={`${sidebarCollapsed ? 'w-5 h-5' : 'w-4.5 h-4.5 mr-3'} shrink-0`} />
           {!sidebarCollapsed && <span>Actions Menu</span>}
         </button>
+
+        {/* Admin Login/Logout Button */}
+        {isAdmin ? (
+          <button
+            onClick={handleLogout}
+            title={sidebarCollapsed ? 'Admin Logout' : undefined}
+            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center py-3' : 'px-3 py-2.5'} rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 dark:hover:bg-rose-950/20`}
+          >
+            <LogOut className={`${sidebarCollapsed ? 'w-5 h-5' : 'w-4.5 h-4.5 mr-3'} shrink-0`} />
+            {!sidebarCollapsed && <span>Admin Logout</span>}
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsLoginModalOpen(true)}
+            title={sidebarCollapsed ? 'Admin Login' : undefined}
+            className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center py-3' : 'px-3 py-2.5'} rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 text-emerald-600 dark:text-emerald-450 hover:bg-emerald-500/10 dark:hover:bg-emerald-950/20`}
+          >
+            <LogIn className={`${sidebarCollapsed ? 'w-5 h-5' : 'w-4.5 h-4.5 mr-3'} shrink-0`} />
+            {!sidebarCollapsed && <span>Admin Login</span>}
+          </button>
+        )}
       </nav>
 
       {/* Mini sync icon when collapsed */}
@@ -250,6 +314,82 @@ export default function Sidebar({ dbMode }: SidebarProps) {
           {sidebarContent}
         </div>
       </div>
+
+      {/* Elegant Login Modal */}
+      <AnimatePresence>
+        {isLoginModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsLoginModalOpen(false)}>
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-2xl p-6 relative overflow-hidden glass-panel"
+            >
+              <div className="flex items-center gap-3.5 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#4A6B53]/10 dark:bg-emerald-500/10 flex items-center justify-center text-[#4A6B53] dark:text-[#6E9C7C]">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-display font-bold text-[#222E26] dark:text-[#F7F6F0]">Admin Authentication</h3>
+                  <p className="text-[10px] text-[#5C6B60] dark:text-[#899D90]">Unlock database write permissions</p>
+                </div>
+                <button 
+                  onClick={() => { setIsLoginModalOpen(false); setLoginError(''); }}
+                  className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {!isPasswordConfigured && (
+                <div className="p-3 mb-4 rounded-xl border border-amber-600/20 bg-amber-500/10 text-[11px] text-amber-700 dark:text-amber-400 flex items-start gap-2">
+                  <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Unprotected Mode</strong>: No <code>ADMIN_PASSWORD</code> environment variable is set. Access control is currently disabled.
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-[#5C6B60] dark:text-[#899D90] uppercase tracking-wider block">Admin Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter password..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isPending}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-[#EDEBE0]/20 dark:bg-[#151B17]/40 text-[#222E26] dark:text-[#F7F6F0] focus:ring-2 focus:ring-[#4A6B53] dark:focus:ring-emerald-500 placeholder-[#5C6B60]/40 dark:placeholder-[#899D90]/30 transition-all"
+                  />
+                </div>
+
+                {loginError && (
+                  <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-450">{loginError}</p>
+                )}
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setIsLoginModalOpen(false); setLoginError(''); }}
+                    className="flex-1 py-2 border border-[#DFDCD0] dark:border-[#2E3D33] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] font-semibold rounded-xl text-xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="flex-1 py-2 bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] font-bold rounded-xl text-xs shadow-sm active:scale-98 transition-all disabled:opacity-50"
+                  >
+                    {isPending ? 'Authenticating...' : 'Authenticate'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

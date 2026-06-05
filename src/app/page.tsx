@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { db } from '@/lib/db/db';
 import DashboardCharts from '@/components/DashboardCharts';
+import { isPasswordConfigured } from '@/lib/auth';
 
 // Force dynamic rendering to always load fresh data from Google Sheets/JSON
 export const revalidate = 0;
@@ -18,6 +19,8 @@ export default async function DashboardPage() {
     db.getCollections(),
     db.getActivities(),
   ]);
+
+  const passwordConfigured = isPasswordConfigured();
 
   // Compute Statistics
   const totalPrompts = prompts.length;
@@ -63,6 +66,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Unprotected Mode Warning */}
+      {!passwordConfigured && (
+        <div className="p-4 rounded-xl border border-amber-600/35 bg-amber-500/10 text-amber-800 dark:text-amber-400 text-xs font-semibold leading-relaxed flex items-center gap-2.5 animate-fade-in shadow-sm">
+          <span>⚠️ <strong>Security Notice</strong>: No <code>ADMIN_PASSWORD</code> is configured. All write actions are unprotected and open to the public. Add <code>ADMIN_PASSWORD</code> to your <code>.env</code> file to enable public read-only protection.</span>
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 md:p-8 rounded-2xl border border-[#DFDCD0]/60 dark:border-[#2E3D33]/60 bg-white dark:bg-[#1D2620] shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#4A6B53]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20 dark:bg-[#6E9C7C]/10" />

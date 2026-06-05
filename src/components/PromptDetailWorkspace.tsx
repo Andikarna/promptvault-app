@@ -24,6 +24,7 @@ interface PromptDetailWorkspaceProps {
   prompt: Prompt;
   versions: PromptVersion[];
   categories: Category[];
+  isAdmin: boolean;
 }
 
 const editFormSchema = z.object({
@@ -36,7 +37,7 @@ const editFormSchema = z.object({
   language: z.string().min(1, 'Language is required'),
 });
 
-export default function PromptDetailWorkspace({ prompt, versions, categories }: PromptDetailWorkspaceProps) {
+export default function PromptDetailWorkspace({ prompt, versions, categories, isAdmin }: PromptDetailWorkspaceProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const addToast = useStore((state) => state.addToast);
@@ -308,32 +309,36 @@ ${prompt.prompt}
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Favorite Toggle */}
-          <button
-            onClick={handleToggleFavorite}
-            className={`p-2 rounded-xl border flex items-center gap-1.5 text-xs font-semibold shadow-sm transition-all ${
-              prompt.favorite
-                ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
-                : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
-            }`}
-            title="Star prompt"
-          >
-            <Star className={`w-3.5 h-3.5 ${prompt.favorite ? 'text-[#4A6B53] fill-[#4A6B53] dark:text-[#6E9C7C] dark:fill-[#6E9C7C]' : ''}`} />
-            {prompt.favorite ? 'Starred' : 'Star'}
-          </button>
+          {/* Favorite Toggle (Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={handleToggleFavorite}
+              className={`p-2 rounded-xl border flex items-center gap-1.5 text-xs font-semibold shadow-sm transition-all ${
+                prompt.favorite
+                  ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
+                  : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
+              }`}
+              title="Star prompt"
+            >
+              <Star className={`w-3.5 h-3.5 ${prompt.favorite ? 'text-[#4A6B53] fill-[#4A6B53] dark:text-[#6E9C7C] dark:fill-[#6E9C7C]' : ''}`} />
+              {prompt.favorite ? 'Starred' : 'Star'}
+            </button>
+          )}
 
-          {/* Archive Toggle */}
-          <button
-            onClick={handleToggleArchive}
-            className={`p-2 rounded-xl border flex items-center gap-1.5 text-xs font-semibold shadow-sm transition-all ${
-              prompt.archived
-                ? 'border-[#4A6B53]/35 bg-[#4A6B53]/10 text-[#4A6B53] dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-500'
-                : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
-            }`}
-          >
-            <Archive className="w-3.5 h-3.5" />
-            {prompt.archived ? 'Archived' : 'Archive'}
-          </button>
+          {/* Archive Toggle (Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={handleToggleArchive}
+              className={`p-2 rounded-xl border flex items-center gap-1.5 text-xs font-semibold shadow-sm transition-all ${
+                prompt.archived
+                  ? 'border-[#4A6B53]/35 bg-[#4A6B53]/10 text-[#4A6B53] dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-500'
+                  : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
+              }`}
+            >
+              <Archive className="w-3.5 h-3.5" />
+              {prompt.archived ? 'Archived' : 'Archive'}
+            </button>
+          )}
 
           {/* Export MD */}
           <button
@@ -353,21 +358,25 @@ ${prompt.prompt}
             <Printer className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500" /> PDF
           </button>
 
-          {/* Duplicate */}
-          <button
-            onClick={handleDuplicate}
-            className="p-2 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] transition-all shadow-sm flex items-center gap-1.5 text-xs font-semibold"
-          >
-            Duplicate
-          </button>
+          {/* Duplicate (Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={handleDuplicate}
+              className="p-2 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] transition-all shadow-sm flex items-center gap-1.5 text-xs font-semibold"
+            >
+              Duplicate
+            </button>
+          )}
 
-          {/* Delete */}
-          <button
-            onClick={handleDelete}
-            className="p-2 rounded-xl border border-rose-200/60 dark:border-rose-950 bg-rose-50/20 dark:bg-rose-950/10 text-rose-600 hover:text-rose-500 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-900 transition-all shadow-sm flex items-center gap-1.5 text-xs font-semibold"
-          >
-            Delete
-          </button>
+          {/* Delete (Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={handleDelete}
+              className="p-2 rounded-xl border border-rose-200/60 dark:border-rose-950 bg-rose-50/20 dark:bg-rose-950/10 text-rose-600 hover:text-rose-500 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-900 transition-all shadow-sm flex items-center gap-1.5 text-xs font-semibold"
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -493,8 +502,8 @@ ${prompt.prompt}
                       </div>
                       <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-1 italic mt-0.5">{v.description || 'Edited prompt text'}</p>
                       
-                      {/* Rollback button (only show on historical versions) */}
-                      {v.versionNumber < Math.max(...versions.map(vs => vs.versionNumber)) && (
+                      {/* Rollback button (only show on historical versions if Admin) */}
+                      {isAdmin && v.versionNumber < Math.max(...versions.map(vs => vs.versionNumber)) && (
                         <button
                           onClick={() => handleRollback(v.id, v.versionNumber)}
                           className="mt-1.5 text-[9px] font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -543,16 +552,18 @@ ${prompt.prompt}
                 >
                   <Copy className="w-3.5 h-3.5" /> Copy Prompt
                 </button>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className={`p-2 rounded-lg border flex items-center gap-1 text-xs font-semibold shadow-sm transition-colors ${
-                    isEditing 
-                      ? 'bg-[#4A6B53] border-[#3B5441] text-white dark:bg-[#6E9C7C] dark:border-[#3B5441] dark:text-[#151B17]' 
-                      : 'border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900'
-                  }`}
-                >
-                  <Edit3 className="w-3.5 h-3.5" /> {isEditing ? 'Cancel Edit' : 'Edit Prompt'}
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className={`p-2 rounded-lg border flex items-center gap-1 text-xs font-semibold shadow-sm transition-colors ${
+                      isEditing 
+                        ? 'bg-[#4A6B53] border-[#3B5441] text-white dark:bg-[#6E9C7C] dark:border-[#3B5441] dark:text-[#151B17]' 
+                        : 'border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900'
+                    }`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" /> {isEditing ? 'Cancel Edit' : 'Edit Prompt'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -667,67 +678,69 @@ ${prompt.prompt}
 
       </div>
 
-      {/* FLOATING ACTION AI ENHANCEMENT MENU */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2 text-xs">
-        
-        {/* Expanded AI Menu options */}
-        <AnimatePresence>
-          {aiShowMenu && (
-            <motion.div
-              initial={{ opacity: 0, y: 15, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="p-2 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-2xl flex flex-col gap-1 w-52 glass-panel"
-            >
-              <div className="px-2.5 py-1.5 text-[9px] font-bold text-[#5C6B60] dark:text-[#899D90] uppercase border-b border-[#DFDCD0] dark:border-[#2E3D33] flex items-center gap-1"><Sparkles className="w-3 h-3 text-[#4A6B53] dark:text-[#6E9C7C]" /> AI Prompter Toolkit</div>
-              
-              <button
-                onClick={() => handleAIAction('improve')}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+      {/* FLOATING ACTION AI ENHANCEMENT MENU (Admin Only) */}
+      {isAdmin && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2 text-xs">
+          
+          {/* Expanded AI Menu options */}
+          <AnimatePresence>
+            {aiShowMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="p-2 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-2xl flex flex-col gap-1 w-52 glass-panel"
               >
-                <Sparkle className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Improve Prompt
-              </button>
-              <button
-                onClick={() => handleAIAction('detailed')}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
-              >
-                <ChevronRight className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Make More Detailed
-              </button>
-              <button
-                onClick={() => handleAIAction('shorter')}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
-              >
-                <X className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Make Shorter
-              </button>
-              <button
-                onClick={() => handleAIAction('english')}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
-              >
-                <Globe className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Translate to English
-              </button>
-              <button
-                onClick={() => handleAIAction('indonesian')}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
-              >
-                <Globe className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Terjemahkan Indonesia
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div className="px-2.5 py-1.5 text-[9px] font-bold text-[#5C6B60] dark:text-[#899D90] uppercase border-b border-[#DFDCD0] dark:border-[#2E3D33] flex items-center gap-1"><Sparkles className="w-3 h-3 text-[#4A6B53] dark:text-[#6E9C7C]" /> AI Prompter Toolkit</div>
+                
+                <button
+                  onClick={() => handleAIAction('improve')}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+                >
+                  <Sparkle className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Improve Prompt
+                </button>
+                <button
+                  onClick={() => handleAIAction('detailed')}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+                >
+                  <ChevronRight className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Make More Detailed
+                </button>
+                <button
+                  onClick={() => handleAIAction('shorter')}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+                >
+                  <X className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Make Shorter
+                </button>
+                <button
+                  onClick={() => handleAIAction('english')}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+                >
+                  <Globe className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Translate to English
+                </button>
+                <button
+                  onClick={() => handleAIAction('indonesian')}
+                  className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-[#6E9C7C] font-semibold transition-colors flex items-center gap-2"
+                >
+                  <Globe className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" /> Terjemahkan Indonesia
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Core Magic Orb button */}
-        <button
-          onClick={() => setAiShowMenu(!aiShowMenu)}
-          className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#4A6B53] to-[#6E9C7C] hover:from-[#3B5441] hover:to-[#4A6B53] flex items-center justify-center text-white dark:text-[#151B17] shadow-xl shadow-[#4A6B53]/20 hover:scale-105 active:scale-95 transition-all group"
-          title="AI Prompt Enhancer"
-        >
-          {aiProcessing ? (
-            <RefreshCw className="w-5 h-5 animate-spin" />
-          ) : (
-            <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-          )}
-        </button>
-      </div>
+          {/* Core Magic Orb button */}
+          <button
+            onClick={() => setAiShowMenu(!aiShowMenu)}
+            className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#4A6B53] to-[#6E9C7C] hover:from-[#3B5441] hover:to-[#4A6B53] flex items-center justify-center text-white dark:text-[#151B17] shadow-xl shadow-[#4A6B53]/20 hover:scale-105 active:scale-95 transition-all group"
+            title="AI Prompt Enhancer"
+          >
+            {aiProcessing ? (
+              <RefreshCw className="w-5 h-5 animate-spin" />
+            ) : (
+              <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* AI Processing overlay */}
       {aiProcessing && (

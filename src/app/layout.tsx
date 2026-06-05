@@ -6,6 +6,7 @@ import ToastContainer from '@/components/ToastContainer';
 import HeaderActions from '@/components/HeaderActions'; // Client component for theme toggle and status
 import Sidebar from '@/components/Sidebar';
 import { isSheetsMode } from '@/lib/db/db';
+import { checkIsAdmin } from '@/lib/auth';
 import './globals.css';
 
 const inter = Inter({
@@ -23,18 +24,21 @@ export const metadata: Metadata = {
   description: 'Organize, search, version, and enhance your AI prompts with Google Sheets synchronization.',
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', type: 'image/png' },
     ],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const dbMode = isSheetsMode ? 'Sheets' : 'Local';
+  const isAdmin = await checkIsAdmin();
 
   return (
     <html lang="en" className="dark">
@@ -43,12 +47,12 @@ export default function RootLayout({
       >
         <Providers>
           <div className="flex flex-col md:flex-row min-h-screen">
-            <Sidebar dbMode={dbMode} />
+            <Sidebar dbMode={dbMode} isAdmin={isAdmin} />
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
               {/* Header actions (Theme toggle, status alerts) */}
-              <HeaderActions dbMode={dbMode} />
+              <HeaderActions dbMode={dbMode} isAdmin={isAdmin} />
               
               {/* Page content */}
               <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto animate-fade-in">

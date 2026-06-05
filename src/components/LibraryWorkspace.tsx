@@ -27,6 +27,7 @@ interface LibraryWorkspaceProps {
     categories: Category[];
     collections: Collection[];
   };
+  isAdmin: boolean;
 }
 
 // Zod Validation Schemas
@@ -53,7 +54,7 @@ const collectionFormSchema = z.object({
   description: z.string().max(200),
 });
 
-export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps) {
+export default function LibraryWorkspace({ initialData, isAdmin }: LibraryWorkspaceProps) {
   const queryClient = useQueryClient();
   const addToast = useStore((state) => state.addToast);
   
@@ -416,13 +417,15 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
               <FolderOpen className="w-4 h-4 text-[#4A6B53] dark:text-amber-500" />
               Collections
             </h3>
-            <button
-              onClick={() => setCreateCollectionOpen(true)}
-              className="p-1 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#4A6B53] hover:text-[#3B5441] transition-colors"
-              title="New Collection"
-            >
-              <FolderPlus className="w-4 h-4" />
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCreateCollectionOpen(true)}
+                className="p-1 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#4A6B53] hover:text-[#3B5441] transition-colors"
+                title="New Collection"
+              >
+                <FolderPlus className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -455,13 +458,15 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
                   <span className={`px-1.5 py-0.5 rounded text-[10px] ${activeCollectionId === col.id ? 'bg-[#3B5441]/80 dark:bg-[#4A6B53]/40 text-white dark:text-[#151B17]' : 'bg-[#EDEBE0] dark:bg-[#352D26] text-[#5C6B60]'}`}>
                     {col.promptIds.length}
                   </span>
-                  <span 
-                    onClick={(e) => handleDeleteCollection(col.id, e)}
-                    className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-rose-500 transition-opacity"
-                    title="Delete collection"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </span>
+                  {isAdmin && (
+                    <span 
+                      onClick={(e) => handleDeleteCollection(col.id, e)}
+                      className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-rose-500 transition-opacity"
+                      title="Delete collection"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </span>
+                  )}
                 </div>
               </button>
             ))}
@@ -485,12 +490,18 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
           <p className="text-[10px] text-[#5C6B60] dark:text-[#899D90] mb-3 leading-relaxed">
             Manage tags like Programming, Android, Flutter, UI/UX, etc.
           </p>
-          <button
-            onClick={() => setManageCategoriesOpen(true)}
-            className="w-full py-2 px-3 border border-[#DFDCD0] dark:border-[#2E3D33] hover:border-[#4A6B53]/40 dark:hover:border-[#6E9C7C]/40 hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 rounded-xl text-xs font-bold text-[#5C6B60] dark:text-[#899D90] hover:text-[#222E26] dark:hover:text-[#F7F6F0] transition-colors flex items-center justify-center gap-1.5"
-          >
-            <PlusCircle className="w-3.5 h-3.5 text-[#4A6B53] dark:text-amber-500" /> Configure Categories
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={() => setManageCategoriesOpen(true)}
+              className="w-full py-2 px-3 border border-[#DFDCD0] dark:border-[#2E3D33] hover:border-[#4A6B53]/40 dark:hover:border-[#6E9C7C]/40 hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 rounded-xl text-xs font-bold text-[#5C6B60] dark:text-[#899D90] hover:text-[#222E26] dark:hover:text-[#F7F6F0] transition-colors flex items-center justify-center gap-1.5"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-[#4A6B53] dark:text-amber-500" /> Configure Categories
+            </button>
+          ) : (
+            <div className="w-full text-center py-2 px-3 rounded-xl bg-[#EDEBE0]/30 dark:bg-[#1D2620]/30 text-[10px] text-[#5C6B60] dark:text-[#899D90] font-medium border border-[#DFDCD0]/45 dark:border-[#2E3D33]/45">
+              Categories Read-Only
+            </div>
+          )}
         </div>
 
       </aside>
@@ -538,12 +549,14 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
               </div>
 
               {/* Add Prompt Button */}
-              <button
-                onClick={() => setCreatePromptOpen(true)}
-                className="flex items-center gap-1.5 py-2 px-4 bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] rounded-xl text-xs font-bold shadow-sm shadow-[#4A6B53]/10 active:scale-98 transition-all"
-              >
-                <Plus className="w-4 h-4" /> Create Prompt
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setCreatePromptOpen(true)}
+                  className="flex items-center gap-1.5 py-2 px-4 bg-[#4A6B53] hover:bg-[#3B5441] text-white dark:bg-[#6E9C7C] dark:hover:bg-[#4A6B53] dark:text-[#151B17] rounded-xl text-xs font-bold shadow-sm shadow-[#4A6B53]/10 active:scale-98 transition-all"
+                >
+                  <Plus className="w-4 h-4" /> Create Prompt
+                </button>
+              )}
             </div>
           </div>
 
@@ -684,42 +697,50 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
                       
                       <div className="flex items-center gap-0.5">
                         {/* Collection addition dropdown */}
-                        <div className="relative group/folder">
-                          <button
-                            className="p-1.5 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] hover:text-[#222E26] dark:hover:text-[#F7F6F0] transition-colors"
-                            title="Add to Collection"
-                          >
-                            <Folder className="w-3.5 h-3.5" />
-                          </button>
-                          <div className="absolute right-0 top-6 hidden group-hover/folder:block w-48 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-xl py-1 z-20 text-[11px] text-[#222E26] dark:text-[#F7F6F0]">
-                            <div className="px-2.5 py-1.5 text-[10px] font-bold text-[#5C6B60] dark:text-[#899D90] uppercase border-b border-[#DFDCD0] dark:border-[#2E3D33]">Toggle Collection</div>
-                            {collections.map(col => {
-                              const isIncluded = col.promptIds.includes(p.id);
-                              return (
-                                <button
-                                  key={col.id}
-                                  onClick={() => handleAddToCollection(p.id, col.id)}
-                                  className="w-full text-left px-2.5 py-1.5 hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 flex items-center justify-between transition-colors"
-                                >
-                                  <span>{col.name}</span>
-                                  {isIncluded && <Check className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" />}
-                                </button>
-                              );
-                            })}
-                            {collections.length === 0 && (
-                              <div className="px-2.5 py-2 text-center text-[#5C6B60] text-[10px]">Create a collection first</div>
-                            )}
+                        {isAdmin && (
+                          <div className="relative group/folder">
+                            <button
+                              className="p-1.5 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] hover:text-[#222E26] dark:hover:text-[#F7F6F0] transition-colors"
+                              title="Add to Collection"
+                            >
+                              <Folder className="w-3.5 h-3.5" />
+                            </button>
+                            <div className="absolute right-0 top-6 hidden group-hover/folder:block w-48 rounded-xl border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-xl py-1 z-20 text-[11px] text-[#222E26] dark:text-[#F7F6F0]">
+                              <div className="px-2.5 py-1.5 text-[10px] font-bold text-[#5C6B60] dark:text-[#899D90] uppercase tracking-wider border-b border-[#DFDCD0] dark:border-[#2E3D33]">Toggle Collection</div>
+                              {collections.map(col => {
+                                const isIncluded = col.promptIds.includes(p.id);
+                                return (
+                                  <button
+                                    key={col.id}
+                                    onClick={() => handleAddToCollection(p.id, col.id)}
+                                    className="w-full text-left px-2.5 py-1.5 hover:bg-[#EDEBE0]/50 dark:hover:bg-[#352D26]/50 flex items-center justify-between transition-colors"
+                                  >
+                                    <span>{col.name}</span>
+                                    {isIncluded && <Check className="w-3.5 h-3.5 text-[#4A6B53] dark:text-[#6E9C7C]" />}
+                                  </button>
+                                );
+                              })}
+                              {collections.length === 0 && (
+                                <div className="px-2.5 py-2 text-center text-[#5C6B60] text-[10px]">Create a collection first</div>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {/* Favorite Button */}
-                        <button
-                          onClick={(e) => handleToggleFavorite(p.id, e)}
-                          className="p-1.5 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-amber-500 transition-colors"
-                          title="Star prompt"
-                        >
-                          <Star className={`w-3.5 h-3.5 ${p.favorite ? 'text-[#4A6B53] fill-[#4A6B53] dark:text-[#6E9C7C] dark:fill-[#6E9C7C]' : ''}`} />
-                        </button>
+                        {isAdmin ? (
+                          <button
+                            onClick={(e) => handleToggleFavorite(p.id, e)}
+                            className="p-1.5 rounded-lg hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] text-[#5C6B60] dark:text-[#899D90] hover:text-[#4A6B53] dark:hover:text-amber-500 transition-colors"
+                            title="Star prompt"
+                          >
+                            <Star className={`w-3.5 h-3.5 ${p.favorite ? 'text-[#4A6B53] fill-[#4A6B53] dark:text-[#6E9C7C] dark:fill-[#6E9C7C]' : ''}`} />
+                          </button>
+                        ) : p.favorite ? (
+                          <div className="p-1.5 text-amber-500 dark:text-[#6E9C7C]" title="Starred Prompt">
+                            <Star className="w-3.5 h-3.5 fill-current text-[#4A6B53] dark:text-[#6E9C7C]" />
+                          </div>
+                        ) : null}
                       </div>
                     </div>
 
@@ -760,27 +781,31 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
                     <span className="text-[10px] font-semibold text-[#5C6B60] dark:text-[#899D90] px-2 py-0.5 rounded-lg border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] shadow-sm">{p.aiTool}</span>
                     
                     <div className="flex items-center gap-1.5">
-                      {/* Duplicate */}
-                      <button
-                        onClick={(e) => handleDuplicatePrompt(p.id, e)}
-                        className="p-1.5 rounded-lg border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] transition-colors shadow-sm"
-                        title="Duplicate prompt"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Duplicate (Admin Only) */}
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => handleDuplicatePrompt(p.id, e)}
+                          className="p-1.5 rounded-lg border border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] hover:text-[#222E26] dark:text-[#899D90] dark:hover:text-[#F7F6F0] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26] transition-colors shadow-sm"
+                          title="Duplicate prompt"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
-                      {/* Archive */}
-                      <button
-                        onClick={(e) => handleToggleArchive(p.id, e)}
-                        className={`p-1.5 rounded-lg border transition-all shadow-sm ${
-                          p.archived 
-                            ? 'border-[#4A6B53]/20 bg-[#4A6B53]/5 text-[#4A6B53] dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-500' 
-                            : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] dark:text-[#899D90] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
-                        }`}
-                        title={p.archived ? 'Restore prompt' : 'Archive prompt'}
-                      >
-                        <Archive className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Archive (Admin Only) */}
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => handleToggleArchive(p.id, e)}
+                          className={`p-1.5 rounded-lg border transition-all shadow-sm ${
+                            p.archived 
+                              ? 'border-[#4A6B53]/20 bg-[#4A6B53]/5 text-[#4A6B53] dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-500' 
+                              : 'border-[#DFDCD0] dark:border-[#2E3D33] bg-white dark:bg-[#1D2620] text-[#5C6B60] dark:text-[#899D90] hover:bg-[#EDEBE0] dark:hover:bg-[#352D26]'
+                          }`}
+                          title={p.archived ? 'Restore prompt' : 'Archive prompt'}
+                        >
+                          <Archive className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
                       {/* View Details */}
                       <Link
@@ -791,14 +816,16 @@ export default function LibraryWorkspace({ initialData }: LibraryWorkspaceProps)
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
 
-                      {/* Delete */}
-                      <button
-                        onClick={() => setConfirmDeleteId(p.id)}
-                        className="p-1.5 rounded-lg border border-rose-200/60 dark:border-rose-950 bg-rose-50/20 dark:bg-rose-950/10 text-rose-600 hover:text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900 transition-colors shadow-sm"
-                        title="Delete prompt"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Delete (Admin Only) */}
+                      {isAdmin && (
+                        <button
+                          onClick={() => setConfirmDeleteId(p.id)}
+                          className="p-1.5 rounded-lg border border-rose-200/60 dark:border-rose-950 bg-rose-50/20 dark:bg-rose-950/10 text-rose-600 hover:text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900 transition-colors shadow-sm"
+                          title="Delete prompt"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
                       {/* One Click Copy Main Accent Button */}
                       <button
